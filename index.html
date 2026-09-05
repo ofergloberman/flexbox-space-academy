@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flexbox Space Academy</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1 class="title">Flexbox Space Academy</h1>
+      <div class="level">Mission <span id="current-level">1</span> / <span id="total-levels">8</span></div>
+    </header>
+
+    <section class="mission">
+      <h2 class="mission-title" id="mission-title">Mission Briefing</h2>
+      <p class="mission-instruction" id="mission-instruction">Arrange the spaceships inside the mission board using Flexbox controls to satisfy the mission objective.</p>
+    </section>
+
+    <main class="main-area">
+      <div class="game-area">
+        <div class="board" id="board" aria-label="Game board">
+          <div class="ship">🚀</div>
+          <div class="ship">🚀</div>
+          <div class="ship">🚀</div>
+        </div>
+      </div>
+
+      <aside class="control-panel">
+        <form class="controls" id="controls">
+          <label>flex-direction
+            <select id="flexDirection">
+              <option value="row">row</option>
+              <option value="row-reverse">row-reverse</option>
+              <option value="column">column</option>
+              <option value="column-reverse">column-reverse</option>
+            </select>
+          </label>
+
+          <label>justify-content
+            <select id="justifyContent">
+              <option value="flex-start">flex-start</option>
+              <option value="flex-end">flex-end</option>
+              <option value="center">center</option>
+              <option value="space-between">space-between</option>
+              <option value="space-around">space-around</option>
+              <option value="space-evenly">space-evenly</option>
+            </select>
+          </label>
+
+          <label>align-items
+            <select id="alignItems">
+              <option value="stretch">stretch</option>
+              <option value="flex-start">flex-start</option>
+              <option value="flex-end">flex-end</option>
+              <option value="center">center</option>
+            </select>
+          </label>
+
+          <label>flex-wrap
+            <select id="flexWrap">
+              <option value="nowrap">nowrap</option>
+              <option value="wrap">wrap</option>
+              <option value="wrap-reverse">wrap-reverse</option>
+            </select>
+          </label>
+
+          <div class="buttons">
+            <button id="checkBtn" class="btn primary">Check Mission</button>
+            <button id="resetBtn" class="btn">Reset</button>
+          </div>
+        </form>
+
+        <div class="info">
+          <div>Attempts: <span id="attempts">0</span></div>
+          <div>Score: <span id="score">0</span></div>
+          <div id="message" class="message"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
