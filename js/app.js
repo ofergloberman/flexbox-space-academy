@@ -84,6 +84,7 @@ const levels = [
 let currentLevel = 0;
 let attempts = 0;
 let score = 0;
+const completedLevels = [];
 
 function loadLevel(index) {
   const level = levels[index];
@@ -92,6 +93,7 @@ function loadLevel(index) {
   const justifyContentSelect = document.getElementById('justifyContent');
   const alignItemsSelect = document.getElementById('alignItems');
   const flexWrapSelect = document.getElementById('flexWrap');
+  const nextBtn = document.getElementById('nextBtn');
 
   document.getElementById('current-level').textContent = level.id;
   document.getElementById('total-levels').textContent = levels.length;
@@ -112,6 +114,7 @@ function loadLevel(index) {
   attempts = 0;
   document.getElementById('attempts').textContent = attempts;
   document.getElementById('message').textContent = '';
+  nextBtn.hidden = true;
 
   flexDirectionSelect.value = 'row';
   justifyContentSelect.value = 'flex-start';
@@ -124,12 +127,59 @@ function loadLevel(index) {
   board.style.flexWrap = 'nowrap';
 }
 
+function checkSolution() {
+  const level = levels[currentLevel];
+  const board = document.getElementById('board');
+  const attemptsDisplay = document.getElementById('attempts');
+  const scoreDisplay = document.getElementById('score');
+  const message = document.getElementById('message');
+  const nextBtn = document.getElementById('nextBtn');
+  let isCorrect = true;
+
+  attempts = attempts + 1;
+  attemptsDisplay.textContent = attempts;
+
+  Object.entries(level.solution).forEach(function(entry) {
+    const property = entry[0];
+    const correctValue = entry[1];
+
+    if (board.style[property] !== correctValue) {
+      isCorrect = false;
+    }
+  });
+
+  if (isCorrect) {
+    message.style.color = '#6ee7b7';
+
+    if (!completedLevels.includes(currentLevel)) {
+      score = score + 100;
+      scoreDisplay.textContent = score;
+      completedLevels.push(currentLevel);
+    }
+
+    if (currentLevel === levels.length - 1) {
+      message.textContent = 'Academy completed! You finished all missions.';
+      nextBtn.hidden = true;
+    } else {
+      message.textContent = 'Mission completed!';
+      nextBtn.hidden = false;
+    }
+  } else {
+    message.textContent = 'Not quite. Adjust the Flexbox controls and try again.';
+    message.style.color = '#ffdede';
+    nextBtn.hidden = true;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const board = document.getElementById('board');
   const flexDirectionSelect = document.getElementById('flexDirection');
   const justifyContentSelect = document.getElementById('justifyContent');
   const alignItemsSelect = document.getElementById('alignItems');
   const flexWrapSelect = document.getElementById('flexWrap');
+  const checkBtn = document.getElementById('checkBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const nextBtn = document.getElementById('nextBtn');
 
   document.getElementById('score').textContent = score;
   loadLevel(currentLevel);
@@ -148,5 +198,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
   flexWrapSelect.addEventListener('change', function() {
     board.style.flexWrap = flexWrapSelect.value;
+  });
+
+  checkBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    checkSolution();
+  });
+
+  resetBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    loadLevel(currentLevel);
+  });
+
+  nextBtn.addEventListener('click', function() {
+    if (currentLevel < levels.length - 1) {
+      currentLevel = currentLevel + 1;
+      loadLevel(currentLevel);
+    }
   });
 });
