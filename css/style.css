@@ -96,7 +96,11 @@ select{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);bac
 .info label{display:flex;flex-direction:column;gap:6px}
 .info label[hidden]{display:none}
 .info select{max-width:100%}
+.info progress{width:100%;height:12px;accent-color:var(--accent)}
 .message{min-height:24px;color:#ffdede}
+.hint,.explanation{line-height:1.4}
+.hint{color:#c6d9ed}
+.explanation{color:var(--accent)}
 
 .board.feedback-success{animation:success-pulse 0.6s ease-out}
 .board.feedback-error{animation:error-shake 0.35s ease-in-out}

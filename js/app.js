@@ -3,6 +3,8 @@ const levels = [
     id: 1,
     title: 'Right Side Docking',
     instruction: 'Move all spaceships to the right side of the station.',
+    hint: 'In a row, the main axis runs left to right. Which control moves items along that axis?',
+    explanation: 'justify-content: flex-end places the ships at the end of the row\'s main axis.',
     numberOfShips: 3,
     solution: {
       justifyContent: 'flex-end'
@@ -12,6 +14,8 @@ const levels = [
     id: 2,
     title: 'Central Docking',
     instruction: 'Move the fleet to the center of the station, both horizontally and vertically.',
+    hint: 'A row has a horizontal main axis and a vertical cross axis. Use one control for each axis.',
+    explanation: 'justify-content: center centers the fleet horizontally, while align-items: center centers it vertically.',
     numberOfShips: 3,
     solution: {
       justifyContent: 'center',
@@ -22,6 +26,8 @@ const levels = [
     id: 3,
     title: 'Vertical Formation',
     instruction: 'Arrange the spaceships vertically from top to bottom.',
+    hint: 'Think about changing the direction of the main axis before adjusting spacing.',
+    explanation: 'flex-direction: column changes the main axis to vertical, so the ships line up from top to bottom.',
     numberOfShips: 4,
     solution: {
       flexDirection: 'column'
@@ -31,6 +37,8 @@ const levels = [
     id: 4,
     title: 'Bottom Supply Line',
     instruction: 'Spread the spaceships evenly across the station and move them to the bottom.',
+    hint: 'One control spreads ships along the row; a different control moves them on the vertical cross axis.',
+    explanation: 'justify-content: space-between spreads ships across the row, and align-items: flex-end moves them to the bottom.',
     numberOfShips: 4,
     solution: {
       justifyContent: 'space-between',
@@ -41,6 +49,8 @@ const levels = [
     id: 5,
     title: 'Reverse Fleet',
     instruction: 'Reverse the order of the fleet and center the ships vertically.',
+    hint: 'Direction can reverse the ship order. Cross-axis alignment handles their vertical position.',
+    explanation: 'flex-direction: row-reverse reverses the row, and align-items: center centers the ships vertically.',
     numberOfShips: 4,
     solution: {
       flexDirection: 'row-reverse',
@@ -51,6 +61,8 @@ const levels = [
     id: 6,
     title: 'Hangar Overflow',
     instruction: 'The hangar is crowded. Allow the spaceships to continue onto additional rows.',
+    hint: 'Flex items normally stay on one line. Look for the control that allows additional lines.',
+    explanation: 'flex-wrap: wrap lets ships continue onto new rows when they do not fit on one row.',
     numberOfShips: 12,
     solution: {
       flexWrap: 'wrap'
@@ -60,6 +72,8 @@ const levels = [
     id: 7,
     title: 'Orbital Formation',
     instruction: 'Arrange the ships vertically, center them horizontally, and distribute space around them.',
+    hint: 'In a column, the main axis is vertical and the cross axis is horizontal.',
+    explanation: 'flex-direction: column stacks the ships, justify-content: space-around spaces them vertically, and align-items: center centers them horizontally.',
     numberOfShips: 4,
     solution: {
       flexDirection: 'column',
@@ -71,6 +85,8 @@ const levels = [
     id: 8,
     title: 'Final Fleet Challenge',
     instruction: 'Reverse the fleet, allow wrapping, distribute the ships evenly, and align them at the bottom.',
+    hint: 'Solve this in parts: direction and wrapping first, then main-axis spacing and cross-axis alignment.',
+    explanation: 'row-reverse reverses the fleet, wrap creates more rows, space-evenly distributes ships, and align-items: flex-end moves ships to the cross-axis end of each row.',
     numberOfShips: 12,
     solution: {
       flexDirection: 'row-reverse',
@@ -123,6 +139,13 @@ function updateMissionSelect() {
   missionSelect.value = currentLevel;
 }
 
+function updateProgress() {
+  document.getElementById('completed-count').textContent = completedLevels.length;
+  document.getElementById('progress-total').textContent = levels.length;
+  document.getElementById('mission-progress').max = levels.length;
+  document.getElementById('mission-progress').value = completedLevels.length;
+}
+
 function loadLevel(index) {
   const level = levels[index];
   const board = document.getElementById('board');
@@ -131,6 +154,8 @@ function loadLevel(index) {
   const alignItemsSelect = document.getElementById('alignItems');
   const flexWrapSelect = document.getElementById('flexWrap');
   const nextBtn = document.getElementById('nextBtn');
+  const hint = document.getElementById('hint');
+  const explanation = document.getElementById('explanation');
 
   document.getElementById('current-level').textContent = level.id;
   document.getElementById('total-levels').textContent = levels.length;
@@ -151,6 +176,10 @@ function loadLevel(index) {
   attempts = 0;
   document.getElementById('attempts').textContent = attempts;
   document.getElementById('message').textContent = '';
+  hint.textContent = '';
+  hint.hidden = true;
+  explanation.textContent = '';
+  explanation.hidden = true;
   nextBtn.hidden = true;
   board.classList.remove('feedback-success', 'feedback-error');
 
@@ -164,6 +193,7 @@ function loadLevel(index) {
   board.style.alignItems = 'stretch';
   board.style.flexWrap = 'nowrap';
   updateMissionSelect();
+  updateProgress();
 }
 
 function checkSolution() {
@@ -173,6 +203,8 @@ function checkSolution() {
   const scoreDisplay = document.getElementById('score');
   const message = document.getElementById('message');
   const nextBtn = document.getElementById('nextBtn');
+  const hint = document.getElementById('hint');
+  const explanation = document.getElementById('explanation');
   let isCorrect = true;
 
   attempts = attempts + 1;
@@ -189,6 +221,9 @@ function checkSolution() {
 
   if (isCorrect) {
     message.style.color = '#6ee7b7';
+    hint.hidden = true;
+    explanation.textContent = level.explanation;
+    explanation.hidden = false;
     board.classList.remove('feedback-error');
     board.classList.add('feedback-success');
 
@@ -212,6 +247,7 @@ function checkSolution() {
 
     saveProgress();
     updateMissionSelect();
+    updateProgress();
 
     if (currentLevel === levels.length - 1) {
       message.textContent = 'Academy completed! You finished all missions.';
@@ -223,6 +259,8 @@ function checkSolution() {
   } else {
     message.textContent = 'Not quite. Adjust the Flexbox controls and try again.';
     message.style.color = '#ffdede';
+    explanation.textContent = '';
+    explanation.hidden = true;
     nextBtn.hidden = true;
     board.classList.remove('feedback-success');
     board.classList.add('feedback-error');
@@ -237,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const flexWrapSelect = document.getElementById('flexWrap');
   const checkBtn = document.getElementById('checkBtn');
   const resetBtn = document.getElementById('resetBtn');
+  const hintBtn = document.getElementById('hintBtn');
   const nextBtn = document.getElementById('nextBtn');
   const restartBtn = document.getElementById('restartBtn');
   const missionSelect = document.getElementById('missionSelect');
@@ -313,6 +352,12 @@ document.addEventListener('DOMContentLoaded', function() {
   resetBtn.addEventListener('click', function(event) {
     event.preventDefault();
     loadLevel(currentLevel);
+  });
+
+  hintBtn.addEventListener('click', function() {
+    const hint = document.getElementById('hint');
+    hint.textContent = 'Hint: ' + levels[currentLevel].hint;
+    hint.hidden = false;
   });
 
   nextBtn.addEventListener('click', function() {
