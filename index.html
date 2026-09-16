@@ -81,7 +81,10 @@
         <div class="info">
           <div>Attempts: <span id="attempts">0</span></div>
           <div>Score: <span id="score">0</span></div>
-          <div id="message" class="message"></div>
+          <div id="message" class="message" aria-live="polite"></div>
+          <label id="mission-navigation" hidden>Completed missions
+            <select id="missionSelect"></select>
+          </label>
         </div>
       </aside>
     </main>

@@ -92,6 +92,37 @@ function saveProgress() {
   localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
 }
 
+function updateMissionSelect() {
+  const navigation = document.getElementById('mission-navigation');
+  const missionSelect = document.getElementById('missionSelect');
+  let nextMission = 0;
+
+  navigation.hidden = completedLevels.length === 0;
+  missionSelect.replaceChildren();
+
+  while (nextMission < levels.length && completedLevels.includes(nextMission)) {
+    nextMission = nextMission + 1;
+  }
+
+  levels.forEach(function(level, index) {
+    if (completedLevels.includes(index) || index === nextMission) {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = 'Mission ' + level.id + ': ' + level.title;
+
+      if (completedLevels.includes(index)) {
+        option.textContent += ' (completed)';
+      } else {
+        option.textContent += ' (continue)';
+      }
+
+      missionSelect.appendChild(option);
+    }
+  });
+
+  missionSelect.value = currentLevel;
+}
+
 function loadLevel(index) {
   const level = levels[index];
   const board = document.getElementById('board');
@@ -121,6 +152,7 @@ function loadLevel(index) {
   document.getElementById('attempts').textContent = attempts;
   document.getElementById('message').textContent = '';
   nextBtn.hidden = true;
+  board.classList.remove('feedback-success', 'feedback-error');
 
   flexDirectionSelect.value = 'row';
   justifyContentSelect.value = 'flex-start';
@@ -131,6 +163,7 @@ function loadLevel(index) {
   board.style.justifyContent = 'flex-start';
   board.style.alignItems = 'stretch';
   board.style.flexWrap = 'nowrap';
+  updateMissionSelect();
 }
 
 function checkSolution() {
@@ -156,6 +189,8 @@ function checkSolution() {
 
   if (isCorrect) {
     message.style.color = '#6ee7b7';
+    board.classList.remove('feedback-error');
+    board.classList.add('feedback-success');
 
     if (!completedLevels.includes(currentLevel)) {
       let points = 50;
@@ -176,6 +211,7 @@ function checkSolution() {
     }
 
     saveProgress();
+    updateMissionSelect();
 
     if (currentLevel === levels.length - 1) {
       message.textContent = 'Academy completed! You finished all missions.';
@@ -188,6 +224,8 @@ function checkSolution() {
     message.textContent = 'Not quite. Adjust the Flexbox controls and try again.';
     message.style.color = '#ffdede';
     nextBtn.hidden = true;
+    board.classList.remove('feedback-success');
+    board.classList.add('feedback-error');
   }
 }
 
@@ -201,6 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const resetBtn = document.getElementById('resetBtn');
   const nextBtn = document.getElementById('nextBtn');
   const restartBtn = document.getElementById('restartBtn');
+  const missionSelect = document.getElementById('missionSelect');
 
   const savedCurrentLevel = localStorage.getItem('currentLevel');
   const savedScore = localStorage.getItem('score');
@@ -209,27 +248,46 @@ document.addEventListener('DOMContentLoaded', function() {
   if (savedCurrentLevel !== null) {
     const levelNumber = Number(savedCurrentLevel);
 
-    if (levelNumber >= 0 && levelNumber < levels.length) {
+    if (Number.isInteger(levelNumber) && levelNumber >= 0 && levelNumber < levels.length) {
       currentLevel = levelNumber;
     }
   }
 
   if (savedScore !== null) {
-    score = Number(savedScore);
+    const savedPoints = Number(savedScore);
+
+    if (Number.isFinite(savedPoints) && savedPoints >= 0) {
+      score = savedPoints;
+    }
   }
 
   if (savedCompletedLevels !== null) {
-    const savedLevels = JSON.parse(savedCompletedLevels);
+    try {
+      const savedLevels = JSON.parse(savedCompletedLevels);
 
-    savedLevels.forEach(function(levelIndex) {
-      if (!completedLevels.includes(levelIndex)) {
-        completedLevels.push(levelIndex);
+      if (Array.isArray(savedLevels)) {
+        savedLevels.forEach(function(levelIndex) {
+          if (Number.isInteger(levelIndex) && levelIndex >= 0 &&
+              levelIndex < levels.length && !completedLevels.includes(levelIndex)) {
+            completedLevels.push(levelIndex);
+          }
+        });
       }
-    });
+    } catch (error) {
+      // Ignore damaged saved progress and start with no completed missions.
+    }
+  }
+
+  if (!completedLevels.includes(currentLevel) && currentLevel > completedLevels.length) {
+    currentLevel = completedLevels.length;
   }
 
   document.getElementById('score').textContent = score;
   loadLevel(currentLevel);
+
+  board.addEventListener('animationend', function() {
+    board.classList.remove('feedback-success', 'feedback-error');
+  });
 
   flexDirectionSelect.addEventListener('change', function() {
     board.style.flexDirection = flexDirectionSelect.value;
@@ -263,6 +321,12 @@ document.addEventListener('DOMContentLoaded', function() {
       saveProgress();
       loadLevel(currentLevel);
     }
+  });
+
+  missionSelect.addEventListener('change', function() {
+    currentLevel = Number(missionSelect.value);
+    saveProgress();
+    loadLevel(currentLevel);
   });
 
   restartBtn.addEventListener('click', function() {
