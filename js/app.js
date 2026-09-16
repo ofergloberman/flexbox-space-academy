@@ -86,6 +86,12 @@ let attempts = 0;
 let score = 0;
 const completedLevels = [];
 
+function saveProgress() {
+  localStorage.setItem('currentLevel', currentLevel);
+  localStorage.setItem('score', score);
+  localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+}
+
 function loadLevel(index) {
   const level = levels[index];
   const board = document.getElementById('board');
@@ -152,10 +158,24 @@ function checkSolution() {
     message.style.color = '#6ee7b7';
 
     if (!completedLevels.includes(currentLevel)) {
-      score = score + 100;
+      let points = 50;
+
+      if (attempts === 1) {
+        points = 100;
+      } else if (attempts === 2) {
+        points = 90;
+      } else if (attempts === 3) {
+        points = 80;
+      } else if (attempts === 4) {
+        points = 70;
+      }
+
+      score = score + points;
       scoreDisplay.textContent = score;
       completedLevels.push(currentLevel);
     }
+
+    saveProgress();
 
     if (currentLevel === levels.length - 1) {
       message.textContent = 'Academy completed! You finished all missions.';
@@ -180,6 +200,33 @@ document.addEventListener('DOMContentLoaded', function() {
   const checkBtn = document.getElementById('checkBtn');
   const resetBtn = document.getElementById('resetBtn');
   const nextBtn = document.getElementById('nextBtn');
+  const restartBtn = document.getElementById('restartBtn');
+
+  const savedCurrentLevel = localStorage.getItem('currentLevel');
+  const savedScore = localStorage.getItem('score');
+  const savedCompletedLevels = localStorage.getItem('completedLevels');
+
+  if (savedCurrentLevel !== null) {
+    const levelNumber = Number(savedCurrentLevel);
+
+    if (levelNumber >= 0 && levelNumber < levels.length) {
+      currentLevel = levelNumber;
+    }
+  }
+
+  if (savedScore !== null) {
+    score = Number(savedScore);
+  }
+
+  if (savedCompletedLevels !== null) {
+    const savedLevels = JSON.parse(savedCompletedLevels);
+
+    savedLevels.forEach(function(levelIndex) {
+      if (!completedLevels.includes(levelIndex)) {
+        completedLevels.push(levelIndex);
+      }
+    });
+  }
 
   document.getElementById('score').textContent = score;
   loadLevel(currentLevel);
@@ -213,7 +260,21 @@ document.addEventListener('DOMContentLoaded', function() {
   nextBtn.addEventListener('click', function() {
     if (currentLevel < levels.length - 1) {
       currentLevel = currentLevel + 1;
+      saveProgress();
       loadLevel(currentLevel);
     }
+  });
+
+  restartBtn.addEventListener('click', function() {
+    localStorage.removeItem('currentLevel');
+    localStorage.removeItem('score');
+    localStorage.removeItem('completedLevels');
+
+    currentLevel = 0;
+    score = 0;
+    completedLevels.length = 0;
+
+    document.getElementById('score').textContent = score;
+    loadLevel(currentLevel);
   });
 });
